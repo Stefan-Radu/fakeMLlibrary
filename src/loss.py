@@ -1,12 +1,30 @@
+import abc
 import numpy as np
 
+class LossFn:
+  @abc.abstractmethod
+  def __call__(self, predicted: np.ndarray, expected: np.ndarray) -> float:
+    pass
 
-class MSE:
+  @abc.abstractmethod
+  def backward(self) -> np.ndarray:
+    pass
+
+
+class MSE(LossFn):
   """
     Mean Squared Error loss function
   """
-  def __call__(self, result: np.ndarray, expected: np.ndarray) -> np.ndarray:
-    return np.square(np.subtract(result, expected)).mean()
+  def __call__(self, predicted: np.ndarray, expected: np.ndarray) -> float:
+    self.error = np.subtract(predicted, expected)
+    return np.sum(self.error ** 2)
 
+  def backward(self) -> np.ndarray:
+    return 2 * self.error
 
-# TODO more loss functions
+# TODO more cross entropy loss
+
+if __name__ == '__main__':
+  mse = MSE()
+  print(mse(np.array([1, 5, 3]), np.array([2, 3, 4])))
+  print(mse.backward())

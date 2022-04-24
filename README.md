@@ -8,12 +8,12 @@
 
 ##### Functiile de cost / Loss Fuctions
 - [x] MSE
-- [x] Cross entropy loss
+- [] Cross entropy loss
 
 ##### Optimizatori
 Aici apare cheia proiectului. Mai precis algoritmii care se asigura de actualizarea corecta a
 parametrilor din cadrul retelei.
-- [] SGD
+- [x] SGD
 * Adam*
 
 ##### Initializatori & optimizatori

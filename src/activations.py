@@ -27,10 +27,6 @@ class Sigmoid(Activation):
     Sigmoid activation function
   """
   def __call__(self, x: np.ndarray) -> np.ndarray:
-    # TODO remove this
-    # if any(np.isnan(x)):
-    #   exit(0)
-    # print('x', x, 'sigmoid', 1 / (1 + np.exp(-x)))
     self.output = 1 / (1 + np.exp(-x))
     return self.output
 
@@ -39,18 +35,18 @@ class Sigmoid(Activation):
     return sig * (1 - sig)
 
 
-#TODO derivative
 class ReLU(Activation):
   """
     ReLU activation function
   """
   def __call__(self, x: np.ndarray) -> np.ndarray:
-    # fastest implementation. actually modifies x in place
-    # output = x.copy()
-    # output[x < 0] = 0
-    # return output
-    x[x < 0] = 0
-    return x
+    self.output = x.copy()
+    self.output[self.output < 0] = 0
+    return self.output
+
+  def derivative(self):
+    self.output[self.output > 0] = 1
+    return self.output
 
 
 #TODO derivative
@@ -89,8 +85,10 @@ class Softmax(Activation):
     return self.output
 
   def derivative(self) -> np.ndarray:
-    sm = self.output.reshape(-1, 1)
-    return np.subtract(np.diagflat(sm), sm @ sm.T)
+    sm = self.output.reshape((-1, 1))
+    out = np.diagflat(sm) - np.dot(sm, sm.T)
+    print(out.shape)
+    return np.diagflat(sm) - np.dot(sm, sm.T)
 
 
 if __name__ == '__main__':

@@ -1,22 +1,25 @@
+import random as rand
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import csv
 
+from time import time
+from typing import Generator, List, Tuple
 
-#TODO split training into train & validation
-#TODO option to randomize
+
 #TODO accept function to apply transformatin on training
-#TODO normalize
 
 class MnistDataloader(object):
   def __init__(self, train_path, test_path, batch_size=32, flatten=True, \
-               classes=10):
+               classes=10, train_val_ratio=0.9, randomize=True):
     self.train_path = train_path
     self.test_path = test_path
     self.batch_size = batch_size
     self.flatten = flatten
     self.classes = classes
+    self.train_val_ratio = train_val_ratio
+    self.randomize = randomize
 
     self.testing_data = self.read_images_labels(self.test_path, testing=True)
     self.training_data = self.read_images_labels(self.train_path)
@@ -27,8 +30,13 @@ class MnistDataloader(object):
 
     with open(set_path, 'r') as f:
       csv_file = csv.reader(f)
-      for i, line in enumerate(csv_file):
-        if i == 0: continue
+      lines = [l for i, l in enumerate(csv_file) if i > 0]
+
+      if self.randomize:
+        rand.seed(time())
+        rand.shuffle(lines)
+
+      for line in lines:
         label = None
         if not testing:
           label = np.array([0] * self.classes)
@@ -47,16 +55,34 @@ class MnistDataloader(object):
 
     return images, labels
 
-  def get_generator(self, data):
-    def generator():
+  def get_generator(self, data, batch=False):
+    def generator() -> Generator[List, None, None] | \
+                       Generator[Tuple, None, None]:
       imgs, labels = data
-      for i in range(0, len(imgs), self.batch_size):
-        end = min(i + self.batch_size, len(imgs))
-        yield list(zip(imgs[i:end], labels[i:end]))
+      img_labels = list(zip(imgs, labels))
+      if self.randomize:
+        rand.shuffle(img_labels)
+
+      if batch:
+        for i in range(0, len(img_labels), self.batch_size):
+          end = min(i + self.batch_size, len(imgs))
+          yield img_labels[i:end]
+      else:
+        for img, label in img_labels:
+          yield img, label
     return generator()
 
   def get_train_generator(self):
-    return self.get_generator(self.training_data)
+    images, labels = self.training_data
+    l = int(len(images) * self.train_val_ratio)
+    images, labels = images[:l], labels[:l]
+    return self.get_generator((images, labels), batch=True)
+
+  def get_validation_generator(self):
+    images, labels = self.training_data
+    l = int(len(images) * self.train_val_ratio)
+    images, labels = images[l:], labels[l:]
+    return self.get_generator((images, labels))
 
   def get_test_generator(self):
     return self.get_generator(self.testing_data)

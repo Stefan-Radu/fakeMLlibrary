@@ -1,2 +1,6 @@
 venv
 *.json
+./*.csv
+__pycache__
+*.ckpt
+data

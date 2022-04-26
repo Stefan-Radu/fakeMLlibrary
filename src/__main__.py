@@ -14,7 +14,7 @@ if __name__ == '__main__':
   train_path = os.path.join(input_path, 'train.csv')
   test_path = os.path.join(input_path, 'test.csv')
 
-  no_epochs = 5
+  no_epochs = 50
 
   mnist_dl = MnistDataloader(train_path, test_path, batch_size=16)
 
@@ -23,18 +23,22 @@ if __name__ == '__main__':
   test_data = mnist_dl.get_test_generator
 
   ### Network
-  net = FakeModel([
-    LinearLayer(100),
-    act.ReLU(),
-    LinearLayer(10),
-    act.Sigmoid()
-  ])
+  # net = FakeModel([
+  #   LinearLayer(100),
+  #   act.Tanh(),
+  #   LinearLayer(100),
+  #   act.Tanh(),
+  #   LinearLayer(100),
+  #   act.Tanh(),
+  #   LinearLayer(10),
+  #   act.Tanh()
+  # ])
 
-  # net = FakeModel.load('./netnet.json')
+  net = FakeModel.load('./netnet.json')
   # net = FakeModel.load('./netnet27.json') # -> 974s | L 0.02 | Ac 0.9464
   # net = FakeModel.load('./netnet100.json') # -> 412s | 50 epoci | Ac 0.93639 - test
 
-  optim = SGD(net, learning_rate=1e-1)
+  optim = SGD(net, learning_rate=1e-3)
   loss_fn = MSE()
   # loss_fn = CrossEntropy()
 

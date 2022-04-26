@@ -34,16 +34,16 @@ reference here).
 
 #### What I didn't manage to implement 🙁
 ###### (yeah, it's quite a bit)
-- [] dropout layer
-- [] convolution layers
-- [] pooling layers
-- [] batch normalization layers
-- [] Adam optimizer
-- [] standardized dataloader (though it most likely works on that 
+- [ ] dropout layer
+- [ ] convolution layers
+- [ ] pooling layers
+- [ ] batch normalization layers
+- [ ] Adam optimizer
+- [ ] standardized dataloader (though it most likely works on that 
 precise kaggle csv format)
-- [] preprocessing wrappers
-- [] multithreading
-- [] compatibility layer for loading external models
+- [ ] preprocessing wrappers
+- [ ] multithreading
+- [ ] compatibility layer for loading external models
 
 It would be an understatement to say that I underestimated the amount of work needed to,
 not only write, but also understand what I'm writing. In, the end I stuck with what I 

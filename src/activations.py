@@ -1,4 +1,5 @@
 import abc
+import json
 import numpy as np
 from layers import Layer
 
@@ -9,17 +10,13 @@ class Activation(Layer):
     pass
 
   def backward(self, grad: np.ndarray) -> np.ndarray:
-    return grad * self.derivative()
+      return grad * self.derivative()
 
+  def serialize(self) -> dict:
+    return { 'type': 'activation', }
 
-class Step(Activation):
-  """
-    Step activation function
-  """
-  def __call__(self, x: np.ndarray) -> np.ndarray:
-    x[x >= 0] = 1
-    x[x < 0] = 0
-    return x
+  def __repr__(self) -> str:
+    return json.dumps(self.serialize)
 
 
 class Sigmoid(Activation):
@@ -33,6 +30,9 @@ class Sigmoid(Activation):
   def derivative(self):
     sig = self.output
     return sig * (1 - sig)
+
+  def serialize(self) -> dict:
+    return { 'type': 'sigmoid', }
 
 
 class ReLU(Activation):
@@ -48,8 +48,10 @@ class ReLU(Activation):
     self.output[self.output > 0] = 1
     return self.output
 
+  def serialize(self) -> dict:
+    return { 'type': 'relu', }
 
-#TODO derivative
+
 class LeakyReLU(Activation):
   """
     LeakyReLU activation function
@@ -57,21 +59,35 @@ class LeakyReLU(Activation):
     applied to negative values
   """
   def __init__(self):
-    self._linear_component = 1e-2
-
+    self._linear_component = 0.27
 
   def __call__(self, x: np.ndarray) -> np.ndarray:
-    x[x < 0] *= self._linear_component
-    return x
+    self.output = x.copy()
+    self.output[self.output < 0] *= self._linear_component
+    return self.output
+
+  def derivative(self) -> np.ndarray:
+    self.output[self.output < 0] = self._linear_component
+    self.output[self.output > 0] = 1
+    return self.output
+
+  def serialize(self) -> dict:
+    return { 'type': 'leakyrelu', }
 
 
-#TODO derivative
 class Tanh(Activation):
   """
     Tanh activation function. Already implemented in numpy
   """
   def __call__(self, x: np.ndarray) -> np.ndarray:
-    return np.tanh(x)
+    self.output = np.tanh(x)
+    return self.output
+
+  def derivative(self) -> np.ndarray:
+    return 1 - self.output ** 2
+
+  def serialize(self) -> dict:
+    return { 'type': 'tanh', }
 
 
 class Softmax(Activation):
@@ -87,16 +103,27 @@ class Softmax(Activation):
   def derivative(self) -> np.ndarray:
     sm = self.output.reshape((-1, 1))
     out = np.diagflat(sm) - np.dot(sm, sm.T)
-    print(out.shape)
-    return np.diagflat(sm) - np.dot(sm, sm.T)
+    return np.diagonal(out) # idk if the math is right but it works lol xD
+
+  def serialize(self) -> dict:
+    return { 'type': 'softmax', }
+
+
+activations_str_to_class = {
+  'sigmoid': Sigmoid,
+  'relu': ReLU,
+  'leakyrelu': LeakyReLU,
+  'tanh': Tanh,
+  'softmax': Softmax,
+}
 
 
 if __name__ == '__main__':
   sm = Softmax()
-  print(sm(np.array([1, 2, 3, 5])))
-  print(sm.backward(np.array([0.4, 0.2, 0.3, 3.4])))
+  print(sm(np.array([1, 2, 3])))
+  print(sm.backward(np.array([0.4, 0.2, 0.3])))
 
   s = Sigmoid()
-  print(s(np.array([-1, 0, 1])))
-  print(s.backward(np.array([0.9, 0.2, 0.1])))
+  print(s(np.array([1, 2, 3])))
+  print(s.backward(np.array([0.4, 0.2, 0.3])))
 

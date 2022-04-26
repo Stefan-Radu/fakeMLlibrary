@@ -3,8 +3,8 @@
 ##### Straturi / Operatori
 - [x] perceptron -> straturi liniare
 - [x] functii de activare (Sigmoid, ReLU, Softmax)
-- [x] straturi de pooling
-* [x] starturi convolutionale __*__
+- ~~straturi de pooling~~
+* ~~starturi convolutionale __*__ ~~
 
 ##### Functiile de cost / Loss Fuctions
 - [x] MSE
@@ -14,7 +14,7 @@
 Aici apare cheia proiectului. Mai precis algoritmii care se asigura de actualizarea corecta a
 parametrilor din cadrul retelei.
 - [x] SGD
-* Adam*
+* ~~Adam*~~
 
 ##### Initializatori & optimizatori
 - [x] randomizare a parametrilor / weight-urilor initiale
@@ -40,7 +40,16 @@ parametrilor din cadrul retelei.
 * ceva layer de compatibilitate ca sa pot incarca modele preantrenate -> Transfer Learning *
 
 
-[mnist](https://www.kaggle.com/hojjatk/mnist-dataset)
+##### Ce mai e de facut
+- [x] softmax cu cross entropy
+- [x] save & load
+- [] dropout
+- [x] tanh
+- [] comentarii cod
+- [] readme dragut
+- [] comparatie cu pytorch*?
+
+
 [digit recognizer](https://www.kaggle.com/c/digit-recognizer)
 [intel](https://www.kaggle.com/puneet6060/intel-image-classification)
 
@@ -52,3 +61,4 @@ parametrilor din cadrul retelei.
 [nnadl](http://neuralnetworksanddeeplearning.com)
 [how to implement softmax](https://automata88.medium.com/how-to-implement-the-softmax-derivative-independently-from-any-loss-function-ae6d44363a9d)
 [understandin back propagation](https://gotensor.com/2018/11/12/understanding-backpropagation-detailed-review-of-the-backprop-function/)
+[cross entropy & softmax](https://www.adeveloperdiary.com/data-science/deep-learning/neural-network-with-softmax-in-python/)

@@ -1,10 +1,30 @@
+import json
 import numpy as np
+from time import time
+
+from layers import LinearLayer
+from activations import activations_str_to_class
 
 
 class FakeModel:
 
   def __init__(self, layers):
     self.layers = layers
+
+  @classmethod
+  def load(cls, file_name: str):
+    layers = []
+    with open(file_name, 'r') as f:
+      data = json.loads(f.read())
+      for layer in data.get('layers'):
+        typ = layer.get('type')
+        if typ == 'linear':
+          layers.append(LinearLayer.load(layer))
+        else:
+          act_class = activations_str_to_class[typ]
+          layers.append(act_class())
+
+    return cls(layers)
 
 
   def feedforward(self, x: np.ndarray) -> np.ndarray:
@@ -14,7 +34,10 @@ class FakeModel:
     return output
 
 
-  def train(self, epochs, train_data, validation_data, optimizer, loss_fn):
+  def train(self, epochs, train_data, validation_data, optimizer, \
+            loss_fn, output_file=''):
+    best_acc = 0
+    start_time = time()
     for epoch in range(epochs):
       loss, acc = 0, 0
       no_batches = 0
@@ -33,11 +56,17 @@ class FakeModel:
 
       loss /= no_batches
       acc /= no_batches
+      now_time = time()
       print(f'Epoch {epoch + 1:03d} -> loss: {loss:0.2f}; acc: {acc:0.2f}; ', \
             end=' ')
 
       val_loss, val_acc = self.validation(validation_data, loss_fn)
-      print(f'val_loss: {val_loss:0.2f}; val_acc: {val_acc:0.2f}', flush=True)
+      print(f'val_loss: {val_loss:0.2f}; val_acc: {val_acc:0.2f}', end= ' ')
+      print(f' elasped time: {round(now_time - start_time, 2):0.2f}', flush=True)
+
+      if val_acc > best_acc:
+        best_acc = val_acc
+        self.save(output_file)
 
 
   def validation(self, val_data, loss_fn):
@@ -53,3 +82,17 @@ class FakeModel:
     loss /= total
     acc = correct / total
     return loss, acc
+
+
+  def serialize(self):
+    return { 'layers': [ l.serialize() for l in self.layers ] }
+
+
+  def __repr__(self):
+    return json.dumps(self.serialize())
+
+
+  def save(self, file_name: str):
+    with open(file_name, "w") as f:
+      f.write(repr(self))
+

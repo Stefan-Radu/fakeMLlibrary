@@ -6,7 +6,7 @@ from layers import LinearLayer
 class SGD:
   """
     Stochastic Gradient Descent optimizer
-    Roll the ball down the hill
+    Roll the ball down the hill, gen
   """
   def __init__(self, net: FakeModel, learning_rate=1e-2):
     self.net = net
@@ -18,4 +18,6 @@ class SGD:
       gradient = layer.backward(gradient)
       if not isinstance(layer, LinearLayer):
         continue
+      # basically implemented the "step" inside the linear
+      # layer class
       layer.apply_delta(self.learning_rate)

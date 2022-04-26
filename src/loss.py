@@ -22,24 +22,21 @@ class MSE(LossFn):
   def backward(self) -> np.ndarray:
     return 2 * self.error
 
-# TODO more cross entropy loss
-
-if __name__ == '__main__':
-  mse = MSE()
-  print(mse(np.array([1, 5, 3]), np.array([2, 3, 4])))
-  print(mse.backward())
-
 
 class CrossEntropy(LossFn):
   """
-    CrossEntropy Loss function
+    CrossEntropy Loss function (for softmax)
   """
   def __call__(self, predicted: np.ndarray, expected: np.ndarray) -> float:
     # add 1e-12 to prevent division by 0
     self.error = np.subtract(predicted, expected)
-    return -np.mean(expected * np.log(predicted + 1e-12))
+    return -np.mean(expected * np.log(predicted + 1e-8))
 
   def backward(self) -> np.ndarray:
     return self.error
 
 
+if __name__ == '__main__':
+  mse = MSE()
+  print(mse(np.array([1, 5, 3]), np.array([2, 3, 4])))
+  print(mse.backward())

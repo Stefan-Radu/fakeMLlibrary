@@ -4,6 +4,9 @@ import numpy as np
 
 
 class Layer:
+  """
+    Kinda interface for a layer class
+  """
   @abc.abstractmethod
   def __call__(self, x: np.ndarray) -> np.ndarray:
     pass
@@ -29,6 +32,9 @@ class LinearLayer(Layer):
 
   @classmethod
   def load(cls, data: dict):
+    """
+      load layer from previously stored data in json format
+    """
     in_size = int(data['in_size'])
     out_size = int(data['out_size'])
     weights = data['weights']
@@ -37,9 +43,12 @@ class LinearLayer(Layer):
 
 
   def _initialize_parameters(self, input_size):
+    # using LeCun Uniform distribution
     self.in_size = input_size
-    self.weights = np.random.randn(self.out_size, input_size)
-    self.biases = np.random.randn(self.out_size)
+    limit = np.sqrt(3 / float(input_size))
+    self.weights = np.random.uniform(low=-limit, high=limit, \
+                                     size=(self.out_size, input_size))
+    self.biases = np.random.uniform(low=-limit, high=limit, size=self.out_size)
     self.delta_count = 0
     self.delta_weights = np.zeros_like(self.weights)
     self.delta_biases = np.zeros_like(self.biases)
@@ -56,12 +65,14 @@ class LinearLayer(Layer):
 
   def backward(self, grad: np.ndarray) -> np.ndarray:
     self.delta_count += 1
+    # using this weird reshape business so the dimensions all match together
     self.delta_weights += grad.reshape(1, -1).T @ self.input.reshape(1, -1)
     self.delta_biases += grad
     return self.weights.T @ grad
 
 
   def apply_delta(self, lr):
+    # update weights and biases
     self.weights -= self.delta_weights * lr / self.delta_count
     self.biases -= self.delta_biases * lr / self.delta_count
     self.delta_weights = np.zeros_like(self.weights)
@@ -70,6 +81,8 @@ class LinearLayer(Layer):
 
 
   def serialize(self):
+    # get all data stored in a dictionary so 
+    # it can be easily outputed in json format
     data = {
       'type': 'linear',
       'in_size': self.in_size,

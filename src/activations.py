@@ -5,6 +5,9 @@ from layers import Layer
 
 
 class Activation(Layer):
+  """
+    Kinda interface for the Activation classes
+  """
   @abc.abstractmethod
   def derivative(self) -> np.ndarray:
     pass
@@ -109,6 +112,8 @@ class Softmax(Activation):
     return { 'type': 'softmax', }
 
 
+# This is used to ease my life when loading
+# from a serialized object 
 activations_str_to_class = {
   'sigmoid': Sigmoid,
   'relu': ReLU,

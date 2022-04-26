@@ -7,12 +7,20 @@ from activations import activations_str_to_class
 
 
 class FakeModel:
+  """
+    Build your network here by giving a sequence of
+    layers and their corresponding sizes
+  """
 
   def __init__(self, layers):
     self.layers = layers
 
   @classmethod
   def load(cls, file_name: str):
+    """
+      read the file (must be json) and load
+      the previously saved model
+    """
     layers = []
     with open(file_name, 'r') as f:
       data = json.loads(f.read())
@@ -28,6 +36,9 @@ class FakeModel:
 
 
   def feedforward(self, x: np.ndarray) -> np.ndarray:
+    """
+      self explanatory. forward pass of the network
+    """
     output = x
     for layer in self.layers:
       output = layer(output)
@@ -36,7 +47,12 @@ class FakeModel:
 
   def train(self, epochs, train_data, validation_data, optimizer, \
             loss_fn, output_file=''):
-    best_acc = 0
+    """
+      iterate each epoch, batch, image, pass the data
+      forward and backwards through the network and update
+      the weights
+    """
+    best_loss = 1e13
     start_time = time()
     for epoch in range(epochs):
       loss, acc = 0, 0
@@ -57,19 +73,21 @@ class FakeModel:
       loss /= no_batches
       acc /= no_batches
       now_time = time()
-      print(f'Epoch {epoch + 1:03d} -> loss: {loss:0.2f}; acc: {acc:0.2f}; ', \
+      print(f'Epoch {epoch + 1:03d} -> loss: {loss:0.4f}; acc: {acc:0.4f} | ', \
             end=' ')
 
       val_loss, val_acc = self.validation(validation_data, loss_fn)
-      print(f'val_loss: {val_loss:0.2f}; val_acc: {val_acc:0.2f}', end= ' ')
-      print(f' elasped time: {round(now_time - start_time, 2):0.2f}', flush=True)
+      print(f'val_loss: {val_loss:0.4f}; val_acc: {val_acc:0.4f} | ', end= ' ')
+      print(f'elasped time: {round(now_time - start_time, 2):0.2f}', flush=True)
 
-      if val_acc > best_acc:
-        best_acc = val_acc
+      if output_file and val_loss < best_loss:
+        # if found better loss update the saved model
+        best_loss = val_loss
         self.save(output_file)
 
 
   def validation(self, val_data, loss_fn):
+    # get validation stats (loss and acc)
     total = 0
     correct = 0
     loss = 0
@@ -84,6 +102,15 @@ class FakeModel:
     return loss, acc
 
 
+  def test(self, test_data, output_file: str):
+    with open(output_file, "w") as f:
+      f.write(f'ImageId,Label\n')
+      for i, (img, _) in enumerate(test_data(), 1):
+        predicted = self.feedforward(img)
+        prediction = np.argmax(predicted)
+        f.write(f'{i},{prediction}\n')
+
+
   def serialize(self):
     return { 'layers': [ l.serialize() for l in self.layers ] }
 
@@ -93,6 +120,7 @@ class FakeModel:
 
 
   def save(self, file_name: str):
+    # dump the network contents (i.e. all layers contents)
+    # to the specified file
     with open(file_name, "w") as f:
       f.write(repr(self))
-

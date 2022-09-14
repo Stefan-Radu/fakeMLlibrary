@@ -23,24 +23,20 @@ if __name__ == '__main__':
   test_data = mnist_dl.get_test_generator
 
   ### Network
-  # net = FakeModel([
-  #   LinearLayer(100),
-  #   act.Tanh(),
-  #   LinearLayer(100),
-  #   act.Tanh(),
-  #   LinearLayer(100),
-  #   act.Tanh(),
-  #   LinearLayer(10),
-  #   act.Tanh()
-  # ])
+  net = FakeModel([
+    LinearLayer(30),
+    act.Sigmoid(),
+    LinearLayer(10),
+    act.Softmax(),
+  ])
 
-  net = FakeModel.load('./netnet.json')
+  # net = FakeModel.load('./netnet.json')
   # net = FakeModel.load('./netnet27.json') # -> 974s | L 0.02 | Ac 0.9464
   # net = FakeModel.load('./netnet100.json') # -> 412s | 50 epoci | Ac 0.93639 - test
 
-  optim = SGD(net, learning_rate=1e-3)
-  loss_fn = MSE()
-  # loss_fn = CrossEntropy()
+  optim = SGD(net, learning_rate=1e-1)
+  # loss_fn = MSE()
+  loss_fn = CrossEntropy()
 
   ### Training
   net.train(no_epochs, train_data, val_data, optim, \

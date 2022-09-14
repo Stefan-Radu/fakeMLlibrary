@@ -28,7 +28,7 @@ class CrossEntropy(LossFn):
     CrossEntropy Loss function (for softmax)
   """
   def __call__(self, predicted: np.ndarray, expected: np.ndarray) -> float:
-    # add 1e-12 to prevent division by 0
+    # add 1e-8 to prevent division by 0
     self.error = np.subtract(predicted, expected)
     return -np.mean(expected * np.log(predicted + 1e-8))
 
